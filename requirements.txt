@@ -4,3 +4,4 @@ numpy==1.25.2
 gunicorn==21.2.0
 python-dateutil==2.8.2
 setuptools
+Werkzeug==2.3.7
