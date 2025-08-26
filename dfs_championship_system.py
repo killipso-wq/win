@@ -136,33 +136,41 @@ class DFSChampionshipSystem:
     
     def _integrate_defensive_matchups(self):
         """Integrate defensive data with player projections"""
-        from defense_integration import DefenseIntegration
-        
-        self.defense_integration = DefenseIntegration()
-        self.defense_integration.defense_df = self.defense_df
-        
-        # Calculate defensive metrics
-        self.defense_integration._calculate_defensive_metrics()
-        
-        # Enhance player projections
-        self.players_df = self.defense_integration.enhance_player_projections(
-            self.players_df
-        )
-        
-        # Add DST projections
-        dst_projections = self.defense_integration.get_dst_projections()
-        if not dst_projections.empty:
-            self.players_df = pd.concat([self.players_df, dst_projections], ignore_index=True)
-        
-        logger.info("Defensive matchups integrated")
+        try:
+            from defense_integration import DefenseIntegration
+            
+            self.defense_integration = DefenseIntegration()
+            self.defense_integration.defense_df = self.defense_df
+            
+            # Calculate defensive metrics
+            self.defense_integration._calculate_defensive_metrics()
+            
+            # Enhance player projections
+            self.players_df = self.defense_integration.enhance_player_projections(
+                self.players_df
+            )
+            
+            # Add DST projections
+            dst_projections = self.defense_integration.get_dst_projections()
+            if not dst_projections.empty:
+                self.players_df = pd.concat([self.players_df, dst_projections], ignore_index=True)
+            
+            logger.info("Defensive matchups integrated")
+        except Exception as e:
+            logger.warning(f"Could not integrate defensive matchups: {str(e)}")
+            # Continue without defense integration
     
     def _initialize_subsystems(self):
         """Initialize all subsystems"""
-        from gpp_win_probability import GPPWinProbabilityRanker
-        
-        self.win_probability_ranker = GPPWinProbabilityRanker()
-        
-        logger.info("All subsystems initialized")
+        try:
+            from gpp_win_probability import GPPWinProbabilityRanker
+            
+            self.win_probability_ranker = GPPWinProbabilityRanker()
+            
+            logger.info("All subsystems initialized")
+        except Exception as e:
+            logger.warning(f"Could not initialize subsystems: {str(e)}")
+            # Continue without subsystems
     
     def analyze_slate_edge(self) -> Dict:
         """

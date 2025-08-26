@@ -26,13 +26,26 @@ app.secret_key = 'your-secret-key-change-this'
 system = None
 exporter = None
 
+def create_system():
+    """Create the DFS system instance without loading data"""
+    global system
+    
+    try:
+        system = DFSChampionshipSystem()
+        logger.info("System instance created successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to create system: {str(e)}")
+        return False
+
 def initialize_system():
     """Initialize the DFS system with data"""
     global system, exporter
     
     try:
-        # Create system instance
-        system = DFSChampionshipSystem()
+        # Create system instance if not exists
+        if system is None:
+            create_system()
         
         # Check if data files exist
         players_path = 'players.csv'
@@ -56,14 +69,14 @@ def initialize_system():
             
     except Exception as e:
         logger.error(f"Failed to initialize system: {str(e)}")
-        # Still create system instance for upload functionality
-        if system is None:
-            system = DFSChampionshipSystem()
         return False
 
 @app.route('/')
 def index():
     """Main page"""
+    # Ensure system is created
+    if system is None:
+        create_system()
     return render_template('index.html')
 
 @app.route('/api/status')
