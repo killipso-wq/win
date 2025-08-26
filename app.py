@@ -12,7 +12,7 @@ from datetime import datetime
 import logging
 
 # Import our modules
-from dfs_championship_system import DFSChampionshipSystem
+from dfs_system import DFSChampionshipSystem
 from dk_lineup_exporter import DKLineupExporter
 
 # Configure logging
