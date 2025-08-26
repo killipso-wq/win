@@ -455,6 +455,10 @@
                     statusIndicator.className = 'status-indicator';
                     playerCount.textContent = data.players_loaded;
                     defenseCount.textContent = data.defense_loaded;
+                } else if (data.status === 'no_data') {
+                    statusIndicator.className = 'status-indicator error';
+                    playerCount.textContent = '0';
+                    defenseCount.textContent = '0';
                 } else {
                     statusIndicator.className = 'status-indicator error';
                     playerCount.textContent = '0';

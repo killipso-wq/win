@@ -40,19 +40,25 @@ def initialize_system():
         
         if os.path.exists(players_path) and os.path.exists(defense_path):
             # Load data files
-            system.load_all_data(players_path, defense_path)
+            success = system.load_all_data(players_path, defense_path)
             
-            # Initialize exporter
-            exporter = DKLineupExporter(system)
-            
-            logger.info("System initialized successfully")
-            return True
+            if success:
+                # Initialize exporter
+                exporter = DKLineupExporter(system)
+                logger.info("System initialized successfully with data")
+                return True
+            else:
+                logger.warning("Failed to load data files - system ready for upload")
+                return False
         else:
             logger.info("Data files not found - system ready for upload")
             return False
             
     except Exception as e:
         logger.error(f"Failed to initialize system: {str(e)}")
+        # Still create system instance for upload functionality
+        if system is None:
+            system = DFSChampionshipSystem()
         return False
 
 @app.route('/')
@@ -63,10 +69,20 @@ def index():
 @app.route('/api/status')
 def status():
     """System status check"""
+    if system is None:
+        return jsonify({
+            'status': 'not_initialized',
+            'players_loaded': 0,
+            'defense_loaded': 0
+        })
+    
+    # Check if data is loaded
+    has_data = (system.players_df is not None and system.defense_df is not None)
+    
     return jsonify({
-        'status': 'ready' if system is not None else 'not_initialized',
-        'players_loaded': len(system.players_df) if system and system.players_df is not None else 0,
-        'defense_loaded': len(system.defense_df) if system and system.defense_df is not None else 0
+        'status': 'ready' if has_data else 'no_data',
+        'players_loaded': len(system.players_df) if system.players_df is not None else 0,
+        'defense_loaded': len(system.defense_df) if system.defense_df is not None else 0
     })
 
 @app.route('/api/upload', methods=['POST'])
@@ -210,14 +226,7 @@ if __name__ == '__main__':
     print("🏆 DFS CHAMPIONSHIP SYSTEM 🏆")
     print("="*60)
     print("\n📊 System Status:")
-    
-    # Try to initialize with existing data
-    if initialize_system():
-        print(f"   Players Loaded: {len(system.players_df) if system.players_df is not None else 0}")
-        print(f"   Defense Data: {len(system.defense_df) if system.defense_df is not None else 0}")
-    else:
-        print("   No data files found - ready for upload")
-    
+    print("   System ready - upload data files via web interface")
     print("\n🌐 Access the system at: http://localhost:5000")
     print("\n   Press Ctrl+C to stop")
     print("="*60 + "\n")
